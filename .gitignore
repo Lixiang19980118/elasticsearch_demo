@@ -1,0 +1,27 @@
+# .NET 生成物
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+
+# 测试与覆盖率
+[Tt]est[Rr]esult*/
+coverage*.json
+coverage*.xml
+
+# 本地环境覆盖文件
+appsettings.*.local.json
+*.env
+.env
+
+# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,47 @@
+# Elasticsearch 8.x 学习环境（单节点，仅用于本地 Demo）
+#
+#   docker compose up -d            只启动 Elasticsearch
+#   docker compose --profile kibana up -d   额外启动 Kibana（http://localhost:5601）
+#   docker compose down             停止容器（数据保留在 es-data 卷里）
+#   docker compose down -v          停止并删除数据
+#
+# 说明：为了 demo 简单，这里关闭了安全认证（xpack.security.enabled=false）。
+# 生产环境请务必开启认证并使用 https + 证书指纹，见 README 中的说明。
+
+services:
+  elasticsearch:
+    image: elasticsearch:8.19.4
+    container_name: es-demo
+    environment:
+      - cluster.name=es-demo-cluster
+      - node.name=es-demo-node
+      - discovery.type=single-node
+      # 单节点 + 关闭认证，方便直接用 http://localhost:9200 调试
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  kibana:
+    image: kibana:8.19.4
+    container_name: kibana-demo
+    profiles: ["kibana"]
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+volumes:
+  es-data:
